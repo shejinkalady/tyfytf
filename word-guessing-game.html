@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Word Guessing Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+      background-color: #f5f5f5;
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    .game-container {
+      background-color: white;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-top: 20px;
+    }
+    .word-display {
+      font-size: 24px;
+      letter-spacing: 8px;
+      margin: 20px 0;
+      font-weight: bold;
+    }
+    .hint {
+      font-style: italic;
+      margin-bottom: 15px;
+      color: #7f8c8d;
+    }
+    .clue {
+      color: #3498db;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+    input {
+      padding: 8px;
+      font-size: 16px;
+      border: 1px solid #bdc3c7;
+      border-radius: 4px;
+      margin-right: 5px;
+    }
+    button {
+      padding: 8px 16px;
+      background-color: #2980b9;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #3498db;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .guesses {
+      margin-top: 15px;
+    }
+    .popup {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+    .popup-content {
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      max-width: 400px;
+      animation: popIn 0.5s;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.8); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+    .emoji {
+      font-size: 50px;
+      margin-bottom: 15px;
+    }
+    .correct-word {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Word Guessing Game</h1>
+  
+  <div class="game-container">
+    <p>Guess the word! You have <span id="attempts-left">5</span> attempts remaining.</p>
+    <p>Word length: <span id="word-length"></span> letters</p>
+    
+    <div class="clue">Clue: <span id="clue"></span></div>
+    <div class="hint">Hint: <span id="hint"></span></div>
+    
+    <div class="word-display" id="word-display"></div>
+    
+    <div>
+      <input type="text" id="guess-input" placeholder="Enter your guess">
+      <button id="guess-button">Guess</button>
+    </div>
+    
+    <div class="guesses">
+      <p>Your guesses: <span id="guesses-list"></span></p>
+    </div>
+  </div>
+  
+  <div class="popup" id="popup">
+    <div class="popup-content">
+      <div class="emoji" id="popup-emoji"></div>
+      <h2 id="popup-title"></h2>
+      <p id="popup-message"></p>
+      <p id="correct-answer"></p>
+      <button id="play-again">Play Again</button>
+    </div>
+  </div>
+
+  <script>
+    // Word list with hints
+    const wordList = [
+      { word: "APPLE", hint: "A common fruit that keeps the doctor away", clueLetters: ["A", "P", "E"] },
+      { word: "OCEAN", hint: "Vast body of salt water", clueLetters: ["O", "C", "N"] },
+      { word: "PLANET", hint: "Celestial body that orbits a star", clueLetters: ["P", "L", "T"] },
+      { word: "GUITAR", hint: "A stringed musical instrument", clueLetters: ["G", "U", "R"] },
+      { word: "CAMERA", hint: "Device used to capture images", clueLetters: ["C", "A", "R"] },
+      { word: "ROCKET", hint: "Vehicle that travels to space", clueLetters: ["R", "O", "T"] },
+      { word: "BUTTERFLY", hint: "Insect with colorful wings", clueLetters: ["B", "T", "Y"] },
+      { word: "MOUNTAIN", hint: "Large natural elevation of the earth", clueLetters: ["M", "N", "T"] },
+      { word: "DIAMOND", hint: "Precious gemstone", clueLetters: ["D", "A", "N"] },
+      { word: "KEYBOARD", hint: "Device used for typing", clueLetters: ["K", "E", "D"] }
+    ];
+    
+    let currentWord = "";
+    let currentHint = "";
+    let currentClue = "";
+    let guessesRemaining = 5;
+    let guessedWords = [];
+    let wordDisplay = [];
+    
+    // DOM elements
+    const wordLengthElement = document.getElementById("word-length");
+    const clueElement = document.getElementById("clue");
+    const hintElement = document.getElementById("hint");
+    const wordDisplayElement = document.getElementById("word-display");
+    const guessInput = document.getElementById("guess-input");
+    const guessButton = document.getElementById("guess-button");
+    const attemptsLeftElement = document.getElementById("attempts-left");
+    const guessesListElement = document.getElementById("guesses-list");
+    const popup = document.getElementById("popup");
+    const popupTitle = document.getElementById("popup-title");
+    const popupMessage = document.getElementById("popup-message");
+    const popupEmoji = document.getElementById("popup-emoji");
+    const correctAnswerElement = document.getElementById("correct-answer");
+    const playAgainButton = document.getElementById("play-again");
+    
+    // Initialize game
+    function initGame() {
+      // Select a random word
+      const randomIndex = Math.floor(Math.random() * wordList.length);
+      const selectedWord = wordList[randomIndex];
+      
+      currentWord = selectedWord.word;
+      currentHint = selectedWord.hint;
+      
+      // Create clue from random letters
+      currentClue = selectedWord.clueLetters.join(", ");
+      
+      // Reset game state
+      guessesRemaining = 5;
+      guessedWords = [];
+      wordDisplay = Array(currentWord.length).fill("_");
+      
+      // Update UI
+      wordLengthElement.textContent = currentWord.length;
+      clueElement.textContent = `Random letters from the word: ${currentClue}`;
+      hintElement.textContent = currentHint;
+      wordDisplayElement.textContent = wordDisplay.join(" ");
+      attemptsLeftElement.textContent = guessesRemaining;
+      guessesListElement.textContent = "";
+      correctAnswerElement.textContent = "";
+      
+      // Focus on input
+      guessInput.value = "";
+      guessInput.focus();
+    }
+    
+    // Check guess
+    function checkGuess() {
+      const guess = guessInput.value.trim().toUpperCase();
+      
+      // Validate input
+      if (guess.length === 0) {
+        return;
+      }
+      
+      if (guess.length !== currentWord.length) {
+        alert(`Please enter a ${currentWord.length}-letter word!`);
+        guessInput.value = "";
+        return;
+      }
+      
+      if (guessedWords.includes(guess)) {
+        alert("You already guessed this word!");
+        guessInput.value = "";
+        return;
+      }
+      
+      // Add guess to list
+      guessedWords.push(guess);
+      guessesListElement.textContent = guessedWords.join(", ");
+      
+      // Check if guess is correct
+      if (guess === currentWord) {
+        showPopup(true);
+        return;
+      }
+      
+      // Decrease remaining guesses
+      guessesRemaining--;
+      attemptsLeftElement.textContent = guessesRemaining;
+      
+      // Update word display with correctly guessed letters
+      for (let i = 0; i < currentWord.length; i++) {
+        if (guess[i] === currentWord[i]) {
+          wordDisplay[i] = currentWord[i];
+        }
+      }
+      wordDisplayElement.textContent = wordDisplay.join(" ");
+      
+      // Check if no guesses remaining
+      if (guessesRemaining === 0) {
+        showPopup(false);
+        return;
+      }
+      
+      // Clear input
+      guessInput.value = "";
+      guessInput.focus();
+    }
+    
+    // Show popup
+    function showPopup(isWin) {
+      if (isWin) {
+        popupTitle.textContent = "Congratulations! 🎉";
+        popupEmoji.textContent = "🎊 🏆 🎊";
+        popupMessage.textContent = `You've guessed the word correctly!`;
+        correctAnswerElement.innerHTML = "";
+      } else {
+        popupTitle.textContent = "Better luck next time!";
+        popupEmoji.textContent = "😔 🍀";
+        popupMessage.textContent = `Try again with a new word!`;
+        correctAnswerElement.innerHTML = `The correct word was: <span class="correct-word">${currentWord}</span>`;
+      }
+      
+      popup.style.display = "flex";
+    }
+    
+    // Event listeners
+    guessButton.addEventListener("click", checkGuess);
+    guessInput.addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        checkGuess();
+      }
+    });
+    
+    playAgainButton.addEventListener("click", function() {
+      popup.style.display = "none";
+      initGame();
+    });
+    
+    // Start the game
+    initGame();
+  </script>
+</body>
+</html>

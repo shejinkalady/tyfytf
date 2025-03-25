@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Grey Bytes - Gaming Portal</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Arial", sans-serif;
+      }
+
+      body {
+        background-color: #1a1a1a;
+        background-image: url("bbg.jpeg");
+        color: #e0e0e0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      
+
+      header {
+        background-color: #252525;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      }
+
+      .logo {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #c0c0c0;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+      }
+
+      .logo span {
+        color: #808080;
+      }
+
+      main {
+        flex: 1;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .game-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        grid-gap: 1.5rem;
+        margin-top: 2rem;
+        max-width: 800px;
+        width: 100%;
+      }
+
+      .game-card {
+        background-color: #303030;
+        border-radius: 8px;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        height: 250px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .game-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+      }
+
+      .game-image {
+        height: 180px;
+        background-color: #404040;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .game-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .game-title {
+        padding: 1rem;
+        text-align: center;
+        font-weight: bold;
+        background-color: #252525;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .game-link {
+        display: block;
+        text-decoration: none;
+        color: #e0e0e0;
+        height: 100%;
+      }
+
+      footer {
+        background-color: #252525;
+        padding: 1rem;
+        text-align: center;
+        font-size: 0.8rem;
+        margin-top: auto;
+      }
+
+      .page-heading {
+        font-size: 1.8rem;
+        color: #c0c0c0;
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+
+      .page-description {
+        max-width: 800px;
+        text-align: center;
+        margin-bottom: 1rem;
+        color: #a0a0a0;
+        line-height: 1.6;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo">Grey <span>Bytes</span></div>
+    </header>
+
+    <main>
+      <h1 class="page-heading">Welcome to our Gaming Portal</h1>
+      <p class="page-description">
+        Discover and play our carefully selected games. Click on any game below
+        to start playing!
+      </p>
+
+      <div class="game-grid">
+        <!-- Game 1 -->
+        <div class="game-card">
+          <a href="word-guessing-game.html" class="game-link">
+            <div class="game-image">
+              <img src="gus.jpeg" alt="word guessing" />
+            </div>
+            <div class="game-title">guess the word</div>
+          </a>
+        </div>
+
+        <!-- Game 2 -->
+        <div class="game-card">
+          <a href="tic-tac-toe.html" class="game-link">
+            <div class="game-image">
+              <img src="ticc.jpeg" alt="Tic tac toe" />
+            </div>
+            <div class="game-title">Tic tac toe</div>
+          </a>
+        </div>
+
+        <!-- Game 3 -->
+        <div class="game-card">
+          <a href="memory-match-game.html" class="game-link">
+            <div class="game-image">
+              <img src="mm.jpeg" alt="Memory match" />
+            </div>
+            <div class="game-title">Memory match</div>
+          </a>
+        </div>
+
+        <!-- Game 4 -->
+        <div class="game-card">
+          <a href="rock-paper-scissors-game.html" class="game-link">
+            <div class="game-image">
+              <img src="rpsss.jpeg" alt="Racing Game" />
+            </div>
+            <div class="game-title">Rock paper scissor</div>
+          </a>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p>© 2025 Grey Bytes. All rights reserved. Patent Pending.</p>
+    </footer>
+  </body>
+</html>

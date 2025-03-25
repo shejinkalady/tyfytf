@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        canvas {
+            border: 2px solid #222;
+            background-color: #181818;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="gameCanvas"></canvas>
+    </div>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set the game grid size
+        const tileSize = 20;
+        const gridWidth = 30;
+        const gridHeight = 20;
+
+        // Set canvas dimensions dynamically based on grid size
+        canvas.width = gridWidth * tileSize;
+        canvas.height = gridHeight * tileSize;
+
+        let snake = [
+            { x: 5, y: 5 },
+            { x: 4, y: 5 },
+            { x: 3, y: 5 }
+        ];
+        let direction = 'RIGHT';
+        let food = spawnFood();
+        let gameOver = false;
+        let score = 0;
+
+        // Controls
+        const directions = {
+            'UP': { x: 0, y: -1 },
+            'DOWN': { x: 0, y: 1 },
+            'LEFT': { x: -1, y: 0 },
+            'RIGHT': { x: 1, y: 0 }
+        };
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowUp' && direction !== 'DOWN') {
+                direction = 'UP';
+            } else if (event.key === 'ArrowDown' && direction !== 'UP') {
+                direction = 'DOWN';
+            } else if (event.key === 'ArrowLeft' && direction !== 'RIGHT') {
+                direction = 'LEFT';
+            } else if (event.key === 'ArrowRight' && direction !== 'LEFT') {
+                direction = 'RIGHT';
+            }
+        });
+
+        function spawnFood() {
+            let foodX = Math.floor(Math.random() * gridWidth);
+            let foodY = Math.floor(Math.random() * gridHeight);
+            return { x: foodX, y: foodY };
+        }
+
+        function drawSnake() {
+            for (let i = 0; i < snake.length; i++) {
+                let shade = 220 - (i * 15); // Darker shades of gray
+                ctx.fillStyle = `rgb(${shade}, ${shade}, ${shade})`;
+                ctx.strokeStyle = 'black';
+                ctx.lineWidth = 2;
+                ctx.fillRect(snake[i].x * tileSize, snake[i].y * tileSize, tileSize, tileSize);
+                ctx.strokeRect(snake[i].x * tileSize, snake[i].y * tileSize, tileSize, tileSize);
+            }
+        }
+
+        function drawFood() {
+            ctx.fillStyle = 'rgb(57, 255, 20)';
+            ctx.shadowColor = 'rgb(57, 255, 20)';
+            ctx.shadowBlur = 10;
+            ctx.fillRect(food.x * tileSize, food.y * tileSize, tileSize, tileSize);
+            ctx.shadowBlur = 0; // Remove shadow for the next drawing
+        }
+
+        function updateSnake() {
+            const head = { ...snake[0] };
+            head.x += directions[direction].x;
+            head.y += directions[direction].y;
+
+            if (head.x < 0 || head.x >= gridWidth || head.y < 0 || head.y >= gridHeight || checkCollision(head)) {
+                gameOver = true;
+                return;
+            }
+
+            snake.unshift(head);
+
+            // If the snake eats the food
+            if (head.x === food.x && head.y === food.y) {
+                score++;
+                food = spawnFood();
+            } else {
+                snake.pop();
+            }
+        }
+
+        function checkCollision(head) {
+            for (let i = 1; i < snake.length; i++) {
+                if (snake[i].x === head.x && snake[i].y === head.y) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function drawGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            if (gameOver) {
+                ctx.fillStyle = 'white';
+                ctx.font = '30px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Game Over', canvas.width / 2, canvas.height / 2);
+                ctx.fillText(`Score: ${score}`, canvas.width / 2, canvas.height / 2 + 40);
+                return;
+            }
+
+            drawSnake();
+            drawFood();
+            updateSnake();
+        }
+
+        function gameLoop() {
+            drawGame();
+            if (!gameOver) {
+                setTimeout(gameLoop, 100); // Adjust speed of the snake
+            }
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>
